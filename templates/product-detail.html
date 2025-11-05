@@ -202,8 +202,16 @@ $(document).ready(function() {
 		</div>
 	</div> <!-- row.// -->
 	<hr>
-	<a href="./product-detail.html" class="btn  btn-primary"> <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i>  </a>
-</article> <!-- product-info-aside .// -->
+{% for product in products %}
+  <div class="product-card">
+    <h3>{{ product.product_name }}</h3>
+    {% if product.id in in_cart %}
+      <button disabled>In Cart</button>
+    {% else %}
+      <a href="{% url 'add_cart' product.id %}">Add to Cart</a>
+    {% endif %}
+  </div>
+{% endfor %}/ -->
 		</main> <!-- col.// -->
 	</div> <!-- row.// -->
 </div> <!-- card.// -->

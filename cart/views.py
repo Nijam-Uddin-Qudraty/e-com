@@ -20,26 +20,33 @@ def remove_cart_item(req, product_id):
     cart_item.delete()
     return redirect('cart')
 
-def cart(req,total =0, quantity=0, cart_items=None):
+def cart(req, total=0, quantity=0, cart_items=None):
+    tax = 0
+    grand_total = 0
+    cart_items = []
+
     try:
-        cart = Cart.objects.get(cart_id = _cart_id(req))
+        cart = Cart.objects.get(cart_id=_cart_id(req))
         cart_items = CartItem.objects.filter(cart=cart, is_active=True)
         for cart_item in cart_items:
             total += (cart_item.product.price * cart_item.quantity)
             quantity += cart_item.quantity
-        tax = (2 * total)/100
-        total += tax
+
+        tax = (2 * total) / 100
         grand_total = total + tax
+
     except Cart.DoesNotExist:
         pass
+
     context = {
         'total': total,
         'quantity': quantity,
         'cart_items': cart_items,
-        'tax': tax,
+        'tax': round(tax, 2),
         'grand_total': round(grand_total, 2),
     }
-    return render(req, 'store/cart.html',context)
+
+    return render(req, 'store/cart.html', context)
 
 def _cart_id(req):
     cart = req.session.session_key
