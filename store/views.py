@@ -3,6 +3,7 @@ from .models import Product
 from cart.models import CartItem
 from cart.views import _cart_id
 from category.models import Category
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 
 from django.shortcuts import render, get_object_or_404
 from category.models import Category
@@ -19,11 +20,14 @@ def StoreView(req, category_slug=None):
     if category_slug is not None:
         category = get_object_or_404(Category, slug=category_slug)
         products = Product.objects.filter(category=category, is_available=True)
+        product_count = products.count()
     else:
         products = Product.objects.filter(is_available=True)
-
-    product_count = products.count()
-
+        paginator = Paginator(products, 6)
+        page = req.GET.get('page')
+        paged_products = paginator.get_page(page)
+        product_count = products.count()
+        
     # Check which products are in the cart
     try:
         cart = Cart.objects.get(cart_id=_cart_id(req))
@@ -33,7 +37,7 @@ def StoreView(req, category_slug=None):
         in_cart = []
 
     context = {
-        'products': products,
+        'products': paged_products,
         'product_count': product_count,
         'in_cart': in_cart,
     }
